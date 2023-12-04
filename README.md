@@ -8,7 +8,7 @@ I wrote this after being frustrated with the URL handling in Ruby's standard lib
 ## Installation
 Just point to this repository in your Gemfile:
 ```ruby
-gem "induct-url", "0.0.0.beta2", require: "url",  github: "ingemar/induct-url", tag: "v0.0.0.beta2"
+gem "induct-url", "0.0.0.beta3", require: "url",  github: "ingemar/induct-url", tag: "v0.0.0.beta3"
 ```
 
 ## Usage
