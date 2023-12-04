@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 Gem::Specification.new do |spec|
-  spec.name = "induct-url"
-  spec.version = "0.0.0.beta3"
+  spec.name = "url"
+  spec.version = "0.0.0.rc1"
   spec.authors = ["ingemar"]
   spec.email = ["ingemar@xox.se"]
 
   spec.summary = "A URL parser and constructor that works as you expect"
   spec.description = <<~DESC
-    INDUCT-URL is a simple URL parser and construction tool for Ruby. It doesn't follow any RFC, instead, it behaves as you expect.
+    This is a simple URL parser and construction tool for Ruby. It doesn't follow any RFC, instead, it behaves as you expect.
   DESC
-  spec.homepage = "https://github.com/ingemar/induct-url"
+  spec.homepage = "https://github.com/ingemar/url"
   spec.license = "Apache-2.0"
 
   spec.required_ruby_version = ">= 3.0.0"

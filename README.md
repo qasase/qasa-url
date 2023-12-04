@@ -1,6 +1,6 @@
-# INDUCT – Ingemar's New Dedicated URL Construction Tool
+# URL
 
-INDUCT-URL is a simple URL parser and construction tool for Ruby. It doesn't follow any RFC, instead, it behaves as you expect.
+URL is a simple URL parser and construction tool for Ruby. It doesn't follow any RFC, instead, it behaves as you expect.
 
 ## Background
 I wrote this after being frustrated with the URL handling in Ruby's standard library and other gems. I wanted to be able to parse a URL, modify it and then get the modified URL back as a string. I also wanted to be able to join paths and query strings to URLs without having to worry about trailing slashes and question marks.
@@ -8,7 +8,7 @@ I wrote this after being frustrated with the URL handling in Ruby's standard lib
 ## Installation
 Just point to this repository in your Gemfile:
 ```ruby
-gem "induct-url", "0.0.0.beta3", require: "url",  github: "ingemar/induct-url", tag: "v0.0.0.beta3"
+gem "url", "0.0.0.rc1", require: "url",  github: "ingemar/url", tag: "v0.0.0.rc1"
 ```
 
 ## Usage
