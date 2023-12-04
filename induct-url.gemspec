@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative "lib/url"
+
 Gem::Specification.new do |spec|
   spec.name = "induct-url"
-  spec.version = "0.0.0.beta1"
+  spec.version = URL::VERSION
   spec.authors = ["ingemar"]
   spec.email = ["ingemar@xox.se"]
 

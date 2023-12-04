@@ -3,7 +3,7 @@
 require "rack/utils"
 
 class URL
-  VERSION = "0.0.0.beta1"
+  VERSION = "0.0.0.beta2"
 
   HTTPS = "https"
 
@@ -149,6 +149,6 @@ class URL
   end
 
   def path_str
-    Rack::Utils.escape_path(path)
+    Rack::Utils.escape_path(path) if path && !path.empty?
   end
 end

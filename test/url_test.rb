@@ -95,5 +95,21 @@ class URLTest < Minitest::Test
     end
   end
 
-  
+  describe "#to_s" do
+    it "returns a string representation of the URL" do
+      url = URL.parse("http://www.example.com:404/path/to/nowhere?query=string")
+
+      result = url.to_s
+
+      assert_equal "http://www.example.com:404/path/to/nowhere?query=string", result
+    end
+
+    it "returns a string representation of the URL" do
+      url = URL.parse("example.com")
+
+      result = url.to_s
+
+      assert_equal "https://example.com", result
+    end
+  end
 end
