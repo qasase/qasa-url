@@ -35,6 +35,9 @@ url.join("/path", "to", "nowhere")
 url.to_s # => "https://example.com/path/to/nowhere"
 ```
 
-## Contributing
+## Alternaives
+If you're looking for something that parses URLs in Ruby and Ruby on Rails and behaves erratically but closely conforms to RFC 3986, RFC 3987, and RFC 6570 (level 4),
+check out [addressable](https://github.com/sporkmonger/addressable). It's probably better tested and has industrywide adoption or something.
 
+## Contributing
 Bug reports and pull requests are always welcome!
