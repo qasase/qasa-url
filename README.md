@@ -8,21 +8,31 @@ I wrote this after being frustrated with the URL handling in Ruby's standard lib
 ## Installation
 Just point to this repository in your Gemfile:
 ```ruby
-gem "url", "0.0.0.rc1", require: "url",  github: "ingemar/url", tag: "v0.0.0.rc1"
+gem "url", "0.0.0.rc1" github: "ingemar/url", tag: "v0.0.0.rc1"
 ```
 
 ## Usage
 Initialize a new URL object by parsing a URL string or domain name:
 ```ruby
-require "url"
-
-url = URL.parse("http://www.example.com/path")
+url = URL.parse("http://www.example.com:404/path")
 url.to_s # => "http://www.example.com:404/path"
+url.port = nil
 url.join("/to")
 url.join("/nowhere")
-url.to_s # => "http://www.example.com:404/path/to/nowhere"
+url.to_s # => "http://www.example.com/path/to/nowhere"
 url.merge(foo: "bar")
-url.to_s # => "http://www.example.com:404/path/to/nowhere?foo=bar"
+url.to_s # => "http://www.example.com/path/to/nowhere?foo=bar"
+```
+
+## Advanced usage
+Only use these features if you're a seasoned professional.
+```ruby
+# Ugly "syntactic sugar" is supported because this is not opinionated code ;pPppPpPPPpp
+url = URL["example.com"]
+# Join as much as you want for the price of one!
+url.join("/path", "to", "nowhere")
+# Not providing a protocol will default to 'https'. This code is contemporary.
+url.to_s # => "https://example.com/path/to/nowhere"
 ```
 
 ## Contributing
