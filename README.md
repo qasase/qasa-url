@@ -8,7 +8,7 @@ I wrote this after being frustrated with the URL handling in Ruby's standard lib
 ## Installation
 Just point to this repository in your Gemfile:
 ```ruby
-gem "url", "0.0.0.rc1" github: "ingemar/url", tag: "v0.0.0.rc1"
+gem "url", "0.0.0.rc1", github: "ingemar/url", tag: "v0.0.0.rc1"
 ```
 
 ## Usage
