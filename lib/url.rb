@@ -103,7 +103,7 @@ class URL
   end
 
   def merge(query)
-    self.query = self.query.merge(query)
+    self.query = self.query.merge(query.transform_keys(&:to_s))
 
     self
   end

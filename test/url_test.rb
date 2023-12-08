@@ -86,6 +86,17 @@ class URLTest < Minitest::Test
       )
     end
 
+    it "merges a query with a symbol key" do
+      url = URL.parse("http://www.example.comi?foo=bar")
+
+      url.merge(foo: "baz", query: "string")
+
+      assert_equal(
+        {"foo" => "baz", "query" => "string"},
+        url.query
+      )
+    end
+
     it "returns self" do
       url = URL.parse("http://www.example.com")
 
