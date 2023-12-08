@@ -103,7 +103,7 @@ class URL
   end
 
   def merge(query)
-    self.query = self.query.merge(query.transform_keys(&:to_s))
+    self.query = self.query.merge(deep_transform_keys(query))
 
     self
   end
@@ -148,5 +148,12 @@ class URL
 
   def path_str
     Rack::Utils.escape_path(path) if path && !path.empty?
+  end
+
+  def deep_transform_keys(hash)
+    hash.each_with_object({}) do |(key, value), result|
+      result[key.to_s] =
+        value.is_a?(Hash) ? deep_transform_keys(value) : value
+    end
   end
 end

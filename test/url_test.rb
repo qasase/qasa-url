@@ -89,10 +89,10 @@ class URLTest < Minitest::Test
     it "merges a query with a symbol key" do
       url = URL.parse("http://www.example.comi?foo=bar")
 
-      url.merge(foo: "baz", query: "string")
+      url.merge(foo: "baz", query: "string", deep: {key: "value"})
 
       assert_equal(
-        {"foo" => "baz", "query" => "string"},
+        {"foo" => "baz", "query" => "string", "deep" => {"key" => "value"}},
         url.query
       )
     end
