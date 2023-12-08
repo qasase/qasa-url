@@ -5,8 +5,8 @@ require "rack/utils"
 class URL
   HTTPS = "https"
 
-  SEPARTOR = "://"
-  private_constant :SEPARTOR
+  SEPARATOR = "://"
+  private_constant :SEPARATOR
 
   SLASH = "/"
   private_constant :SLASH
@@ -43,8 +43,8 @@ class URL
     private
 
     def extract_protocol(string)
-      if string.include?(SEPARTOR)
-        string.split(SEPARTOR)
+      if string.include?(SEPARATOR)
+        string.split(SEPARATOR)
       else
         [nil, string]
       end
@@ -115,7 +115,7 @@ class URL
   def to_str
     [
       protocol,
-      SEPARTOR,
+      SEPARATOR,
       domain,
       port_str,
       path_str,
