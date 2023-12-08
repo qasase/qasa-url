@@ -1,8 +1,22 @@
 version: 2.1
-jobs:
-  build:
+
+executors:
+  ruby_executor:
     docker:
-      - image: ruby:3.2.2
+      - image: cimg/ruby:<<parameters.version>>
+    parameters:
+      version:
+        type: string
+        default: "3.0.6"
+
+jobs:
+  build_and_test:
+    executor:
+      name: ruby_executor
+      version: <<parameters.ruby_version>>
+    parameters:
+      ruby_version:
+        type: string
     steps:
       - checkout
       - run:
@@ -11,3 +25,17 @@ jobs:
             gem install bundler -v 2.4.19
             bundle install
             bundle exec rake
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build_and_test:
+          name: build_and_test_ruby_3_0_6
+          ruby_version: "3.0.6"
+      - build_and_test:
+          name: build_and_test_ruby_3_1_4
+          ruby_version: "3.1.4"
+      - build_and_test:
+          name: build_and_test_ruby_3_2_2
+          ruby_version: "3.2.2"
