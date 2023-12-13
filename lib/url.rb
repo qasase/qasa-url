@@ -3,6 +3,7 @@
 require "rack/utils"
 
 class URL
+  DOT = "."
   HTTPS = "https"
 
   SEPARATOR = "://"
@@ -20,7 +21,7 @@ class URL
   QUERY_STRING_SEPARATOR = "?"
   private_constant :QUERY_STRING_SEPARATOR
 
-  attr_accessor :domain, :port, :query
+  attr_accessor :host, :port, :query
   attr_writer :protocol
   attr_reader :path
 
@@ -30,7 +31,7 @@ class URL
         .to_str
         .dup
         .then { extract_protocol(_1) }
-        .then { extract_domain_and_port(*_1) }
+        .then { extract_host_and_port(*_1) }
         .then { extract_path_and_query(**_1) }
         .then do
           next nil if _1.compact.empty?
@@ -50,15 +51,15 @@ class URL
       end
     end
 
-    def extract_domain_and_port(protocol, rest)
+    def extract_host_and_port(protocol, rest)
       return {} if rest.nil? || rest.empty?
 
-      domain, port = rest.split("/")[0].split("?")[0].split(":")
+      host, port = rest.split("/")[0].split("?")[0].split(":")
 
-      {protocol: protocol, domain: domain, port: port, rest: rest}
+      {protocol: protocol, host: host, port: port, rest: rest}
     end
 
-    def extract_path_and_query(protocol: nil, domain: nil, port: nil, rest: nil)
+    def extract_path_and_query(protocol: nil, host: nil, port: nil, rest: nil)
       return {} if rest.nil?
 
       path, query =
@@ -68,14 +69,14 @@ class URL
           [nil, rest.split("?")[1]]
         end
 
-      {protocol: protocol, domain: domain, port: port, path: path, query: query}
+      {protocol: protocol, host: host, port: port, path: path, query: query}
     end
   end
 
   private_class_method :new
-  def initialize(domain:, path: nil, protocol: nil, port: nil, query: nil)
+  def initialize(host:, path: nil, protocol: nil, port: nil, query: nil)
     @protocol = protocol
-    @domain = domain
+    @host = host
     @port = port&.to_i
     self.path = path
     @query = Rack::Utils.parse_nested_query(query)
@@ -112,11 +113,35 @@ class URL
     @protocol || HTTPS
   end
 
+  def tld
+    domain_parts.last
+  end
+
+  def sld
+    domain_parts.then do |parts|
+      next if parts.size < 2
+
+      parts[-2]
+    end
+  end
+
+  def domain
+    [sld, tld].compact.join(DOT)
+  end
+
+  def subdomain
+    (domain_parts - [sld, tld].compact).then do |parts|
+      next if parts.empty?
+
+      parts.join(DOT)
+    end
+  end
+
   def to_str
     [
       protocol,
       SEPARATOR,
-      domain,
+      host,
       port_str,
       path_str,
       query_params
@@ -155,5 +180,9 @@ class URL
       result[key.to_s] =
         value.is_a?(Hash) ? deep_transform_keys(value) : value
     end
+  end
+
+  def domain_parts
+    host.split(DOT)
   end
 end

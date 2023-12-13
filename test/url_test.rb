@@ -6,7 +6,7 @@ class URLTest < Minitest::Test
       result = URL.parse("http://www.example.com:404/path/to/nowhere?query=string")
 
       assert_equal "http", result.protocol
-      assert_equal "www.example.com", result.domain
+      assert_equal "www.example.com", result.host
       assert_equal 404, result.port
       assert_equal "/path/to/nowhere", result.path
       assert_equal(
@@ -19,7 +19,7 @@ class URLTest < Minitest::Test
       result = URL.parse("example.com")
 
       assert_equal "https", result.protocol
-      assert_equal "example.com", result.domain
+      assert_equal "example.com", result.host
       assert_nil result.port
       assert_nil result.path
       assert_equal({}, result.query)
@@ -103,6 +103,78 @@ class URLTest < Minitest::Test
       result = url.merge("query" => "string")
 
       assert_equal url, result
+    end
+  end
+
+  describe "#tld" do
+    it "returns the top level domain name (TLD)" do
+      url = URL.parse("https://www.example.com")
+
+      result = url.tld
+
+      assert_equal "com", result
+    end
+  end
+
+  describe "#sld" do
+    it "returns the second level domain name (SLD)" do
+      url = URL.parse("https://www.example.com")
+
+      result = url.sld
+
+      assert_equal "example", result
+    end
+
+    it "returns nil if there is no SLD" do
+      url = URL.parse("http://localhost:3000")
+
+      result = url.sld
+
+      assert_nil result
+    end
+  end
+
+  describe "#domain" do
+    it "returns the domain name (SLD + TLD)" do
+      url = URL.parse("https://www.example.com")
+
+      result = url.domain
+
+      assert_equal "example.com", result
+    end
+
+    it "can handle a domain without SLD" do
+      url = URL.parse("http://localhost:3000")
+
+      result = url.domain
+
+      assert_equal "localhost", result
+    end
+  end
+
+  describe "#subdomain" do
+    it "returns the subdomain" do
+      url = URL.parse("https://plenty.subs.example.com")
+
+      result = url.subdomain
+
+      assert_equal "plenty.subs", result
+    end
+
+    it "returns nil if there is no subdomain" do
+      url = URL.parse("https://example.com")
+
+      result = url.subdomain
+
+      assert_nil result
+    end
+
+    it "returns nil if there is no SLD" do
+      url = URL.parse("http://localhost:3000")
+
+      result = url.subdomain
+
+      assert_nil result
     end
   end
 
