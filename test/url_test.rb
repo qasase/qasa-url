@@ -106,6 +106,24 @@ class URLTest < Minitest::Test
     end
   end
 
+  describe "#tld=" do
+    it "sets the top level domain name (TLD)" do
+      url = URL.parse("https://www.example.com")
+
+      url.tld = "org"
+
+      assert_equal "www.example.org", url.host
+    end
+
+    it "raises en error if there is no second level domain (SLD)" do
+      url = URL.parse("http://example:3000")
+
+      assert_raises URL::Error do
+        url.tld = "com"
+      end
+    end
+  end
+
   describe "#tld" do
     it "returns the top level domain name (TLD)" do
       url = URL.parse("https://www.example.com")
@@ -113,6 +131,32 @@ class URLTest < Minitest::Test
       result = url.tld
 
       assert_equal "com", result
+    end
+
+    it "returns nil if there is no TLD" do
+      url = URL.parse("http://localhost:3000")
+
+      result = url.tld
+
+      assert_nil result
+    end
+  end
+
+  describe "#sld=" do
+    it "sets the second level domain name (SLD)" do
+      url = URL.parse("https://www.example.com")
+
+      url.sld = "test"
+
+      assert_equal "www.test.com", url.host
+    end
+
+    it "can handle a domain without TLD" do
+      url = URL.parse("http://localhost:3000")
+
+      url.sld = "0.0.0.0"
+
+      assert_equal "0.0.0.0", url.host
     end
   end
 
@@ -125,12 +169,12 @@ class URLTest < Minitest::Test
       assert_equal "example", result
     end
 
-    it "returns nil if there is no SLD" do
+    it "returns the SLD if there is not TLD" do
       url = URL.parse("http://localhost:3000")
 
       result = url.sld
 
-      assert_nil result
+      assert "localhost", result
     end
   end
 
@@ -149,6 +193,32 @@ class URLTest < Minitest::Test
       result = url.domain
 
       assert_equal "localhost", result
+    end
+  end
+
+  describe "#subdomain=" do
+    it "sets the subdomain" do
+      url = URL.parse("https://go.deep.example.com")
+
+      url.subdomain = "surface"
+
+      assert_equal "surface.example.com", url.host
+    end
+
+    it "can handle a host without subdomain" do
+      url = URL.parse("https://example.com")
+
+      url.subdomain = "go.deep"
+
+      assert_equal "go.deep.example.com", url.host
+    end
+
+    it "raises an error if the host has no TLD" do
+      url = URL.parse("http://localhost:3000")
+
+      assert_raises URL::Error do
+        url.subdomain = "sub"
+      end
     end
   end
 
