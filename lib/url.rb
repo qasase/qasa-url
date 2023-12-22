@@ -3,26 +3,39 @@
 require "rack/utils"
 
 class URL
+  Error = Class.new(StandardError)
+
   DOT = "."
   HTTPS = "https"
-
-  SEPARATOR = "://"
-  private_constant :SEPARATOR
-
-  SLASH = "/"
-  private_constant :SLASH
-
   NOTHING = ""
-  private_constant :NOTHING
-
   PORT_SEPARATOR = ":"
-  private_constant :PORT_SEPARATOR
-
   QUERY_STRING_SEPARATOR = "?"
-  private_constant :QUERY_STRING_SEPARATOR
+  SEPARATOR = "://"
+  SLASH = "/"
+  SPACE = " "
 
-  attr_accessor :host, :port, :query
+  ERROR_MESSAGES = {
+    "tld=": {
+      missing_tld: "Cannot change top level domain (TLD) on a host initialized without a TLD (%{url})"
+    },
+    "subdomain=": {
+      missing_tld: "Cannot set subdomain on a host with only a second level domain (SLD) (%{url})"
+    }
+  }
+  private_constant :ERROR_MESSAGES
+
+  attr_accessor :host
+
+  attr_accessor :port
+
+  attr_accessor :query
+
+  attr_writer :domain
+
   attr_writer :protocol
+
+  alias_method :scheme=, :protocol=
+
   attr_reader :path
 
   class << self
@@ -112,21 +125,48 @@ class URL
   def protocol
     @protocol || HTTPS
   end
+  alias_method :scheme, :protocol
+
+  def tld=(new_tld)
+    domain_parts.tap do |parts|
+      raise(Error, ERROR_MESSAGES[:tld=][:missing_tld] % {url: to_s}) if tld.nil?
+
+      @host = [subdomain, sld, new_tld].compact.join(DOT)
+    end
+  end
 
   def tld
-    domain_parts.last
+    domain_parts.last if domain_parts.size > 1
+  end
+
+  def sld=(new_sld)
+    domain_parts.tap do |parts|
+      raise(Error, ERROR_MESSAGES[:subdomain=][:missing_tld] % {url: to_s}) if sld.nil?
+
+      @host = [subdomain, new_sld, tld].compact.join(DOT)
+    end
   end
 
   def sld
     domain_parts.then do |parts|
-      next if parts.size < 2
-
-      parts[-2]
+      if parts.size < 2
+        parts.last
+      else
+        parts[-2]
+      end
     end
   end
 
   def domain
     [sld, tld].compact.join(DOT)
+  end
+
+  def subdomain=(new_subdomain)
+    domain_parts.tap do |parts|
+      raise(Error, ERROR_MESSAGES[:subdomain=][:missing_tld] % {url: to_s}) if tld.nil?
+
+      @host = [new_subdomain, sld, tld].join(DOT)
+    end
   end
 
   def subdomain
@@ -151,6 +191,7 @@ class URL
 
   def inspect
     super.split(" ")[0].concat(" #{to_str}>")
+    super.split(SPACE)[0].concat(" #{to_str}>")
   end
 
   private
