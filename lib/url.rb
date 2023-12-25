@@ -151,7 +151,7 @@ class URL
     self
   end
 
-  # Append query parameters to the URL  
+  # Append query parameters to the URL
   # @param [Hash]
   # @return [URL] self
   # @example
