@@ -6,6 +6,7 @@ class URL
   Error = Class.new(StandardError)
 
   DOT = "."
+  HTTP = "http"
   HTTPS = "https"
   NOTHING = ""
   PORT_SEPARATOR = ":"
@@ -14,6 +15,7 @@ class URL
   SLASH = "/"
   SPACE = " "
 
+  # @private
   ERROR_MESSAGES = {
     "tld=": {
       missing_tld: "Cannot change top level domain (TLD) on a host initialized without a TLD (%{url})"
@@ -24,21 +26,38 @@ class URL
   }
   private_constant :ERROR_MESSAGES
 
+  # @!attribute [rw] host
+  #   @return [String]
+  #   @param [String]
   attr_accessor :host
 
+  # @!attribute [rw] port
+  #   @param [String]
   attr_accessor :port
 
+  # @!attribute [rw] query
+  #   @return [Hash]
   attr_accessor :query
 
-  attr_writer :domain
-
+  # @!attribute [w] protocol
+  #   @param [String]
   attr_writer :protocol
 
+  # @!method scheme=
+  #   @see #protocol=
   alias_method :scheme=, :protocol=
 
+  # @!attribute [r] path
+  #   @return [String]
   attr_reader :path
 
   class << self
+    # Initializes a new URL object from a given string
+    # @param [String] the URL to parse
+    # @return [URL] A new URL object
+    # @example
+    #   URL.parse("https://www.example.com:3000/path?query=string")
+    #   # => #<URL:0x00007f9b9c0b3b20 https://www.example.com:3000/path?query=string>
     def parse(string)
       string
         .to_str
@@ -52,8 +71,12 @@ class URL
           new(**_1)
         end
     end
+
+    # @!method []
+    #   @see #parse
     alias_method :[], :parse
 
+    # @!visibility private
     private
 
     def extract_protocol(string)
@@ -87,6 +110,8 @@ class URL
   end
 
   private_class_method :new
+
+  # @private
   def initialize(host:, path: nil, protocol: nil, port: nil, query: nil)
     @protocol = protocol
     @host = host
@@ -106,6 +131,16 @@ class URL
       end
   end
 
+  # Adds a path to the URL
+  # @overload join(path)
+  #   @param path [String] a single string path
+  # @overload join(*paths)
+  #   @param paths [Array<String>] an array of string paths
+  # @return [URL] self
+  # @example
+  #   url = URL.parse("https://www.example.com")
+  #   url.join("path").path("to", "nowhere")
+  #   url.to_s # => "https://www.example.com/path/to/nowhere"
   def join(*paths)
     paths.map do |path|
       path.start_with?(SLASH) ? path.sub(SLASH, NOTHING) : path.dup
@@ -116,17 +151,28 @@ class URL
     self
   end
 
+  # Append query parameters to the URL
+  # @param [Hash]
+  # @return [URL] self
+  # @example
+  #   url = URL.parse("https://www.example.com")
+  #   url.merge(query: "string")
+  #   url.to_s # => "https://www.example.com?query=string"
   def merge(query)
     self.query = self.query.merge(deep_transform_keys(query))
 
     self
   end
 
+  # @return [String, HTTPS] the protocol, defaults to "https"
   def protocol
     @protocol || HTTPS
   end
   alias_method :scheme, :protocol
 
+  # Sets the top level domain (TLD)
+  # @param [String]
+  # @raise [URL::Error] if the host was initialized without a top level domain (TLD)
   def tld=(new_tld)
     domain_parts.tap do |parts|
       raise(Error, ERROR_MESSAGES[:tld=][:missing_tld] % {url: to_s}) if tld.nil?
@@ -135,18 +181,22 @@ class URL
     end
   end
 
+  # Returns the top level domain (TLD)
+  # @return [String, nil]
   def tld
     domain_parts.last if domain_parts.size > 1
   end
 
+  # Sets the second level domain (SLD)
+  # @param [String]
+  # @raise [URL::Error] if the host was initialized without a top level domain (TLD)
   def sld=(new_sld)
     domain_parts.tap do |parts|
-      raise(Error, ERROR_MESSAGES[:subdomain=][:missing_tld] % {url: to_s}) if sld.nil?
-
       @host = [subdomain, new_sld, tld].compact.join(DOT)
     end
   end
 
+  # @return [String, nil] the second level domain (SLD)
   def sld
     domain_parts.then do |parts|
       if parts.size < 2
@@ -157,10 +207,18 @@ class URL
     end
   end
 
+  # Returns the domain name
+  # @return [String]
+  # @example
+  #   url = URL.parse("https://www.example.com")
+  #   url.domain # => "example.com"
   def domain
     [sld, tld].compact.join(DOT)
   end
 
+  # @param [String]
+  # @return [String]
+  # @raise [URL::Error] if the host was initialized without a top level domain (TLD)
   def subdomain=(new_subdomain)
     domain_parts.tap do |parts|
       raise(Error, ERROR_MESSAGES[:subdomain=][:missing_tld] % {url: to_s}) if tld.nil?
@@ -169,6 +227,8 @@ class URL
     end
   end
 
+  # Returns the subdomain
+  # @return [String, nil]
   def subdomain
     (domain_parts - [sld, tld].compact).then do |parts|
       next if parts.empty?
@@ -177,6 +237,8 @@ class URL
     end
   end
 
+  # Returns the full URL as a string
+  # @return [String]
   def to_str
     [
       protocol,
@@ -189,6 +251,7 @@ class URL
   end
   alias_method :to_s, :to_str
 
+  # @private
   def inspect
     super.split(" ")[0].concat(" #{to_str}>")
     super.split(SPACE)[0].concat(" #{to_str}>")
@@ -196,6 +259,7 @@ class URL
 
   private
 
+  # @private
   def query_params
     if query.any?
       QUERY_STRING_SEPARATOR.dup.concat(Rack::Utils.build_nested_query(query))
@@ -204,6 +268,7 @@ class URL
     end
   end
 
+  # @private
   def port_str
     if port
       PORT_SEPARATOR.dup.concat(port.to_s)
@@ -212,10 +277,12 @@ class URL
     end
   end
 
+  # @private
   def path_str
     Rack::Utils.escape_path(path) if path && !path.empty?
   end
 
+  # @private
   def deep_transform_keys(hash)
     hash.each_with_object({}) do |(key, value), result|
       result[key.to_s] =
