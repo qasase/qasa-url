@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Run the default task
           command: |
-            gem install bundler -v 2.4.19
+            gem install bundler -v 2.5.3
             bundle install
             bundle exec rake
 
@@ -39,3 +39,6 @@ workflows:
       - build_and_test:
           name: build_and_test_ruby_3_2_2
           ruby_version: "3.2.2"
+      - build_and_test:
+          name: build_and_test_ruby_3_3_0
+          ruby_version: "3.3.0"
