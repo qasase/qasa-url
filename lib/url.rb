@@ -59,6 +59,8 @@ class URL
     #   URL.parse("https://www.example.com:3000/path?query=string")
     #   # => #<URL:0x00007f9b9c0b3b20 https://www.example.com:3000/path?query=string>
     def parse(string)
+      return nil if string.nil?
+
       string
         .to_str
         .dup
@@ -141,12 +143,21 @@ class URL
   #   url = URL.parse("https://www.example.com")
   #   url.join("path").path("to", "nowhere")
   #   url.to_s # => "https://www.example.com/path/to/nowhere"
+  # @example
+  #  url = URL.parse("https://www.example.com/")
+  #  url.join("/path", "/to/", "nowhere/")
+  #  url.to_s # => "https://www.example.com/path/to/nowhere/"
   def join(*paths)
-    paths.map do |path|
-      path.start_with?(SLASH) ? path.sub(SLASH, NOTHING) : path.dup
-    end.then do |paths|
-      self.path = Array(path).concat(paths).join(SLASH)
-    end
+    parts = Array(path).concat(paths)
+    size = parts.size
+
+    parts
+      .map
+      .with_index(1) { |part, index| sanitize_path(part, last: index == size) }
+      .compact
+      .then do |parts|
+        self.path = Array(NOTHING).concat(parts).join(SLASH)
+      end
 
     self
   end
@@ -292,5 +303,12 @@ class URL
 
   def domain_parts
     host.split(DOT)
+  end
+
+  def sanitize_path(path, last:)
+    path = path.start_with?(SLASH) ? path[1..] : path.dup
+    path = path.end_with?(SLASH) ? path[..-2] : path unless last
+
+    path.empty? ? nil : path
   end
 end
