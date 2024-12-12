@@ -7,7 +7,7 @@ executors:
     parameters:
       version:
         type: string
-        default: "3.0.6"
+        default: "3.0"
 
 jobs:
   build_and_test:
@@ -22,20 +22,23 @@ jobs:
       - run:
           name: Run the default task
           command: |
-            gem install bundler -v 2.4.19
+            gem install bundler
             bundle install
             bundle exec rake
 
 workflows:
-  version: 2
+  version: 2.1
   build_and_test:
     jobs:
       - build_and_test:
-          name: build_and_test_ruby_3_0_6
-          ruby_version: "3.0.6"
+          name: build_and_test_ruby_3_0
+          ruby_version: "3.0"
       - build_and_test:
-          name: build_and_test_ruby_3_1_4
-          ruby_version: "3.1.4"
+          name: build_and_test_ruby_3_1
+          ruby_version: "3.1"
       - build_and_test:
-          name: build_and_test_ruby_3_2_2
-          ruby_version: "3.2.2"
+          name: build_and_test_ruby_3_2
+          ruby_version: "3.2"
+      - build_and_test:
+          name: build_and_test_ruby_3_3
+          ruby_version: "3.3"
