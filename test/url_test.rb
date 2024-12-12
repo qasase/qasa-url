@@ -30,6 +30,12 @@ class URLTest < Minitest::Test
 
       assert_nil result
     end
+
+    it "returns nil if given nil" do
+      result = URL.parse(nil)
+
+      assert_nil result
+    end
   end
 
   describe "#join" do
@@ -63,6 +69,30 @@ class URLTest < Minitest::Test
       url.join("/path", "/to", "/nowhere")
 
       assert_equal "/path/to/nowhere", url.path
+    end
+
+    it "does not double slash the path if the parsed URL ends with a slash" do
+      url = URL.parse("http://www.example.com/")
+
+      url.join("/path")
+
+      assert_equal "http://www.example.com/path", url.to_s
+    end
+
+    it "does not double slash the path if the parsed URL ends with a slash" do
+      url = URL.parse("http://www.example.com")
+
+      url.join("/path", "/to/", "nowhere")
+
+      assert_equal "http://www.example.com/path/to/nowhere", url.to_s
+    end
+
+    it "doesn not remove a trailing slash" do
+      url = URL.parse("http://www.example.com/")
+
+      url.join("path", "to", "nowhere/")
+
+      assert_equal "http://www.example.com/path/to/nowhere/", url.to_s
     end
 
     it "returns self" do
