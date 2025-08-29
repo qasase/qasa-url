@@ -1,5 +1,5 @@
 ## [0.2.0]
-- `URL#join` and `URL#merge` will return a new URL object. Use `#join!` and `#merge!` to modify the current URL.
+- `URL#join` and `URL#merge` will return a new URL object. Use `#join!` and `#merge!` to modify the current `URL` object.
 
 ## [0.1.1]
 - Fixed a bug where a parsed URL ending with a slash would result in double slashes after the hostname when joined with additional paths.
