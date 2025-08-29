@@ -138,7 +138,7 @@ class URL
   #   @param path [String] a single string path
   # @overload join(*paths)
   #   @param paths [Array<String>] an array of string paths
-  # @return [URL] self
+  # @return [URL] duplicate of self
   # @example
   #   url = URL.parse("https://www.example.com")
   #   url.join("path").path("to", "nowhere")
@@ -148,6 +148,18 @@ class URL
   #  url.join("/path", "/to/", "nowhere/")
   #  url.to_s # => "https://www.example.com/path/to/nowhere/"
   def join(*paths)
+    dup = self.dup
+
+    dup.join!(*paths)
+  end
+
+  # Adds a path to the URL
+  # @overload join(path)
+  #   @param path [String] a single string path
+  # @overload join(*paths)
+  #   @param paths [Array<String>] an array of string paths
+  # @return [URL] self
+  def join!(*paths)
     parts = Array(path).concat(paths)
     size = parts.size
 
@@ -164,12 +176,25 @@ class URL
 
   # Append query parameters to the URL
   # @param [Hash]
-  # @return [URL] self
+  # @return [URL] duplicate of self
   # @example
   #   url = URL.parse("https://www.example.com")
   #   url.merge(query: "string")
   #   url.to_s # => "https://www.example.com?query=string"
   def merge(query)
+    dup = self.dup
+
+    dup.merge!(query)
+  end
+
+  # Append query parameters to the URL
+  # @param [Hash]
+  # @return [URL] self
+  # @example
+  #   url = URL.parse("https://www.example.com")
+  #   url.merge(query: "string")
+  #   url.to_s # => "https://www.example.com?query=string"
+  def merge!(query)
     self.query = self.query.merge(deep_transform_keys(query))
 
     self

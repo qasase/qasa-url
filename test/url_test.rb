@@ -1,3 +1,4 @@
+# rubocop:disable Performance/RedundantMerge
 require "test_helper"
 
 class URLTest < Minitest::Test
@@ -39,10 +40,22 @@ class URLTest < Minitest::Test
   end
 
   describe "#join" do
+    it "duplicates the URL and joins the given path" do
+      url = URL.parse("http://www.example.com")
+
+      result = url.join("path")
+
+      refute_equal url, result
+      assert_equal "/path", result.path
+      assert_nil url.path
+    end
+  end
+
+  describe "#join!" do
     it "joins a path" do
       url = URL.parse("http://www.example.com")
 
-      url.join("path")
+      url.join!("path")
 
       assert_equal "/path", url.path
     end
@@ -50,7 +63,7 @@ class URLTest < Minitest::Test
     it "does noth overwrite the initial path like Addressable::URI" do
       url = URL.parse("http://www.example.com/path")
 
-      url.join("joined-path")
+      url.join!("joined-path")
 
       assert_equal "/path/joined-path", url.path
     end
@@ -58,7 +71,7 @@ class URLTest < Minitest::Test
     it "can join multiple paths" do
       url = URL.parse("http://www.example.com")
 
-      url.join("path", "to", "nowhere")
+      url.join!("path", "to", "nowhere")
 
       assert_equal "/path/to/nowhere", url.path
     end
@@ -66,7 +79,7 @@ class URLTest < Minitest::Test
     it "joins paths with slashes" do
       url = URL.parse("http://www.example.com")
 
-      url.join("/path", "/to", "/nowhere")
+      url.join!("/path", "/to", "/nowhere")
 
       assert_equal "/path/to/nowhere", url.path
     end
@@ -74,7 +87,7 @@ class URLTest < Minitest::Test
     it "does not double slash the path if the parsed URL ends with a slash" do
       url = URL.parse("http://www.example.com/")
 
-      url.join("/path")
+      url.join!("/path")
 
       assert_equal "http://www.example.com/path", url.to_s
     end
@@ -82,7 +95,7 @@ class URLTest < Minitest::Test
     it "does not double slash the path if the parsed URL ends with a slash" do
       url = URL.parse("http://www.example.com")
 
-      url.join("/path", "/to/", "nowhere")
+      url.join!("/path", "/to/", "nowhere")
 
       assert_equal "http://www.example.com/path/to/nowhere", url.to_s
     end
@@ -90,7 +103,7 @@ class URLTest < Minitest::Test
     it "doesn not remove a trailing slash" do
       url = URL.parse("http://www.example.com/")
 
-      url.join("path", "to", "nowhere/")
+      url.join!("path", "to", "nowhere/")
 
       assert_equal "http://www.example.com/path/to/nowhere/", url.to_s
     end
@@ -98,17 +111,35 @@ class URLTest < Minitest::Test
     it "returns self" do
       url = URL.parse("http://www.example.com")
 
-      result = url.join("/pat")
+      result = url.join!("/path")
 
       assert_equal url, result
     end
   end
 
   describe "#merge" do
+    it "duplicates the URL and merges the given query" do
+      url = URL.parse("http://www.example.comi?foo=bar")
+
+      result = url.merge("query" => "string")
+
+      refute_equal url, result
+      assert_equal(
+        {"foo" => "bar", "query" => "string"},
+        result.query
+      )
+      assert_equal(
+        {"foo" => "bar"},
+        url.query
+      )
+    end
+  end
+
+  describe "#merge!" do
     it "merges a query" do
       url = URL.parse("http://www.example.comi?foo=bar")
 
-      url.merge("query" => "string")
+      url.merge!("query" => "string")
 
       assert_equal(
         {"foo" => "bar", "query" => "string"},
@@ -119,7 +150,7 @@ class URLTest < Minitest::Test
     it "merges a query with a symbol key" do
       url = URL.parse("http://www.example.comi?foo=bar")
 
-      url.merge(foo: "baz", query: "string", deep: {key: "value"})
+      url.merge!(foo: "baz", query: "string", deep: {key: "value"})
 
       assert_equal(
         {"foo" => "baz", "query" => "string", "deep" => {"key" => "value"}},
@@ -130,7 +161,7 @@ class URLTest < Minitest::Test
     it "returns self" do
       url = URL.parse("http://www.example.com")
 
-      result = url.merge("query" => "string")
+      result = url.merge!("query" => "string")
 
       assert_equal url, result
     end
@@ -296,3 +327,4 @@ class URLTest < Minitest::Test
     end
   end
 end
+# rubocop:enable Performance/RedundantMerge
