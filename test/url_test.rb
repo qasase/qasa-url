@@ -15,6 +15,66 @@ class URLTest < Minitest::Test
       )
     end
 
+    it "parses a url with protocol in path" do
+      result = URL.parse("https://img.example.com/images/200x200/https://backend.example.com/img/abcd.jpg")
+
+      assert_equal "https", result.protocol
+      assert_equal "img.example.com", result.host
+      assert_nil result.port
+      assert_equal "/images/200x200/https://backend.example.com/img/abcd.jpg", result.path
+      assert_equal({}, result.query)
+    end
+
+    it "parses a url with no protocol, but a protocol in path" do
+      result = URL.parse("example.com:8888/files/ftp://ftp.example.com/file_123.zip")
+
+      assert_equal "https", result.protocol
+      assert_equal "example.com", result.host
+      assert_equal 8888, result.port
+      assert_equal "/files/ftp://ftp.example.com/file_123.zip", result.path
+      assert_equal({}, result.query)
+    end
+
+    it "parses a URL with '+' in the protocol" do
+      result = URL.parse("coap+ws://example.org/sensors/temperature?u=Cel")
+
+      assert_equal "coap+ws", result.protocol
+      assert_equal "example.org", result.host
+      assert_nil result.port
+      assert_equal "/sensors/temperature", result.path
+      assert_equal({"u" => "Cel"}, result.query)
+    end
+
+    it "parses a URL with '.' in the protocol" do
+      result = URL.parse("z39.50r://cnidr.org:2100/tmf?bkirch_rules__a1;esn=f;rs=marc")
+
+      assert_equal "z39.50r", result.protocol
+      assert_equal "cnidr.org", result.host
+      assert_equal 2100, result.port
+      assert_equal "/tmf", result.path
+      assert_equal({"bkirch_rules__a1;esn" => "f;rs=marc"}, result.query)
+    end
+
+    it "parses a URL with '-' in the protocol" do
+      result = URL.parse("ms-browser-extension://example.com")
+
+      assert_equal "ms-browser-extension", result.protocol
+      assert_equal "example.com", result.host
+      assert_nil result.port
+      assert_nil result.path
+      assert_equal({}, result.query)
+    end
+
+    it "parses a URL with a number in the protocol" do
+      result = URL.parse("s3://s3-us-west-2.amazonaws.com/s3test.example.com/dataset1/normal/config=/home/gpadmin/aws_s3/s3.conf")
+
+      assert_equal "s3", result.protocol
+      assert_equal "s3-us-west-2.amazonaws.com", result.host
+      assert_nil result.port
+      assert_equal "/s3test.example.com/dataset1/normal/config=/home/gpadmin/aws_s3/s3.conf", result.path
+      assert_equal({}, result.query)
+    end
+
     it "parses a URL without protocol" do
       result = URL.parse("example.com")
 

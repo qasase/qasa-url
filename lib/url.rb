@@ -12,6 +12,7 @@ class URL
   PORT_SEPARATOR = ":"
   QUERY_STRING_SEPARATOR = "?"
   SEPARATOR = "://"
+  PROTOCOL_MATCHER = /\A[a-z0-9.+-]*#{Regexp.escape(SEPARATOR)}/io
   SLASH = "/"
   SPACE = " "
 
@@ -80,8 +81,8 @@ class URL
     private
 
     def extract_protocol(string)
-      if string.include?(SEPARATOR)
-        string.split(SEPARATOR)
+      if string.match?(PROTOCOL_MATCHER)
+        string.split(SEPARATOR, 2)
       else
         [nil, string]
       end
